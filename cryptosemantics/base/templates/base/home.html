@@ -16,25 +16,12 @@
 
 <h1 class="text-center"> Crypto Semantics Search Tool </h1>
 
-<div class="home-container">
-    <div>
-    </div>
-
-    <!-- This block shows the categories of services provided at the website 
-        It's also used a seach option for filtering offerings in the category/-->
-    <div>
-        <!-- This is for Search bar. When user inputs data and press Enter, it triggers search query at homepage /-->
-        <div class="col-8">
-            <form class="d-flex " method="GET" action="{% url 'home' %}">
-                <input class="form-control me-2" type="text" name="q" placeholder="Search Articles" />
-                <button class="btn btn-outline-success" type="submit">Search</button>
-            </form>
-        </div>
-
-    </div>
-
-    <div>
-
+<div class="row">
+    <div class="col-sm-12 my-auto">
+        <form class="d-flex w-50 mx-auto" method="GET" action="{% url 'home' %}">
+            <input class="form-control me-2" type="text" name="q" placeholder="Search Articles" />
+            <button class="btn btn-outline-success" type="submit">Search</button>
+        </form>
     </div>
 </div>
 
