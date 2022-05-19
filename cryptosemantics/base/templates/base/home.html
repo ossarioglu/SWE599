@@ -21,9 +21,36 @@
         <form class="d-flex w-50 mx-auto" method="GET" action="{% url 'home' %}">
             <input class="form-control me-2" type="text" name="q" placeholder="Search Articles" />
             <button class="btn btn-outline-success" type="submit">Search</button>
+            <label for="listtoday"><input type="radio" name="listselection" value="searchtoday" id="listtoday">Today</label>
+            <label for="listweek"><input type="radio" name="listselection" value="searchweek" id="listweek">This Week</label>
+            <label for="listmonth"><input type="radio" name="listselection" value="searchmonth" id="listmonth">This Month</label>
+            <label for="listyear"><input type="radio" name="listselection" value="searchyear" id="listyear"> This Year</label>
+            <label for="listall"><input type="radio" name="listselection" value="searchall" id="listall"> All</label>
+        
         </form>
     </div>
 </div>
+
+
+
+<h3> {{count}} items are found having "{{key}}" at title  </h3>
+
+{% for result in resultsWP %}
+<div>
+
+    <tr>
+        <td><a href="{{result.item.value}}"> {{result.itemLabel.value}}</a></td>
+        <td>{{result.when.value}}</h></td>
+        <td>{{result.date.value}}</a></td>
+
+    </tr>
+
+
+</div>
+{% endfor %}
+
+
+<!--        <td>{{result.comment.value}}</td> /-->
 
 
 
