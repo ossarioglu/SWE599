@@ -9,10 +9,12 @@ def home(request):
 
     search = request.GET.get('q') if request.GET.get('q') != None else ''
     selection = request.GET.get("listselection", None)
+    
+    dateexpression2 = datetime.strftime(datetime.today(), '%Y-%m-%d')
+    dateexpression1 = datetime.strftime(datetime.today() - timedelta(days=365000), '%Y-%m-%d')
 
     if selection != '':
 
-        dateexpression2 = datetime.strftime(datetime.today(), '%Y-%m-%d')
 
         if selection == "searchtoday":
             dateexpression1 = datetime.strftime(datetime.today() - timedelta(days=1), '%Y-%m-%d')
