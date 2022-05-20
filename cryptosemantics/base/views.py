@@ -25,9 +25,6 @@ def home(request):
         if selection == "searchall":
             dateexpression1 = datetime.strftime(datetime.today() - timedelta(days=365000), '%Y-%m-%d')
 
-        print(dateexpression1)
-        print(dateexpression2)
-
         sqlCrypto = """
             SELECT ?item ?itemLabel
 
