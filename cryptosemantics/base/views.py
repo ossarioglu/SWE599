@@ -6,17 +6,6 @@ import requests
 from django.http import JsonResponse
 
 
-def wikiAPI(query):
-    BASE_URL = 'https://www.wikidata.org/w/api.php'
-    SEARCH_QS = '?action=wbsearchentities&format=json&language=en&type=item&continue=0&search={0}'
-
-    request_uri = BASE_URL + SEARCH_QS.format(query)
-    payload={}
-    headers={}
-    
-    response = requests.request('GET', request_uri, headers=headers, data=payload)
-    return JsonResponse({'response': response.json()})
-
 
 def home(request):
     
@@ -139,9 +128,26 @@ def splitExpression(expression):
     myList = expression.split()
     for item in myList:
         sub = []
-        print(item) 
         print(datetime.now())
         sub.append(item)
-        sub.append(findArticlesDBpedia(item.capitalize()))
+        sub.append(wikiAPI(item))
+        print(sub)
+        #sub.append(findArticlesDBpedia(item.capitalize()))
         output.append(sub)
     return output
+
+
+def wikiAPI(query: str) -> JsonResponse:
+    BASE_URL = 'https://www.wikidata.org/w/api.php'
+    SEARCH_QS = '?action=wbsearchentities&format=json&language=en&type=item&continue=0&search={0}'
+    SEARCH_QS2 = '?action=wbgetentities&sites=enwiki&titles={0}&props=descriptions&languages=en&format=json'
+
+    request_uri = BASE_URL + SEARCH_QS.format(query)
+    payload={}
+    headers={}
+    
+    response = requests.request('GET', request_uri, headers=headers, data=payload).json
+
+  
+
+    return response
