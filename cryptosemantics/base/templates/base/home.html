@@ -2,6 +2,8 @@
 
 {% block content %}
 
+{% load static %}
+
 <!--This is homepage for the website 
     Page gets tags, offers, offer_count and  offer_count_old  as input /-->
 
@@ -11,75 +13,42 @@
         display: grid;
         grid-template-columns: 3fr 10fr 3fr; 
     }
-
 </style>
 
+<div class=" d-flex align-items-center min-vh-100">
 
-
-<h1 class="text-center"> Crypto Semantics Search Tool </h1>
-
-<div class="row">
-    <div class="col-sm-12 my-auto">
-        <form class="d-flex w-50 mx-auto" method="GET" action="{% url 'home' %}">
-            <input class="form-control me-2" type="text" name="q" placeholder="Search Articles" />
-            <button class="btn btn-outline-success" type="submit">Search</button>
-            <label for="listtoday"><input type="radio" name="listselection" value="searchtoday" id="listtoday">Today</label>
-            <label for="listweek"><input type="radio" name="listselection" value="searchweek" id="listweek">This Week</label>
-            <label for="listmonth"><input type="radio" name="listselection" value="searchmonth" id="listmonth">This Month</label>
-            <label for="listyear"><input type="radio" name="listselection" value="searchyear" id="listyear"> This Year</label>
-            <label for="listall"><input type="radio" name="listselection" value="searchall" id="listall"> All</label>
+    <div class="container text-center">
+        
+        <div class="container text-center">
+            <img src="{% static 'images/logo.png' %}" width="360" height="140" />
+            <h1 class="text-center"> Crypto Semantics Search Tool </h1>
+    
+        </div>
+    
+        <form class="row g-3 d-flex w-50 mx-auto" method="GET" action="{% url 'search' %}">
+            <div class="col-10">
+                <input class="form-control me-2" type="text" name="q" placeholder="Search Articles" />
+            </div>
+            <div class="col-2">
+                <button class="btn btn-outline-success" type="submit">Search</button>
+            </div> 
+            <div class="col-2">
+                <label for="listtoday"><input type="radio" name="listselection" value="searchtoday" id="listtoday">Today</label>
+            </div>
+            <div class="col-2">
+                <label for="listweek"><input type="radio" name="listselection" value="searchweek" id="listweek">This Week</label>
+            </div>
+            <div class="col-2">
+                <label for="listmonth"><input type="radio" name="listselection" value="searchmonth" id="listmonth">This Month</label>
+            </div>
+            <div class="col-2">
+                <label for="listyear"><input type="radio" name="listselection" value="searchyear" id="listyear"> This Year</label>
+            </div>
+            <div class="col-2">
+                <label for="listall"><input type="radio" name="listselection" value="searchall" id="listall" checked> All</label>
+            </div>
         
         </form>
     </div>
 </div>
-
-
-
-<h3> {{count}} items are found having "{{key}}" at title  </h3>
-
-{% for result in resultsWP %}
-<div>
-
-    <tr>
-        <td><a href="{{result.item.value}}"> {{result.itemLabel.value}}</a></td>
-        <td>{{result.when.value}}</h></td>
-        <td>{{result.date.value}}</a></td>
-
-    </tr>
-
-
-</div>
-{% endfor %}
-
-
-{% for result in alternative %}
-<div>
-
-    <tr>
-        <td> 
-            {% for sub in result.0 %}
-                <a tabindex="0" class="btn btn-lg btn-danger" role="button" data-toggle="popover" data-trigger="focus" title="<div><h5>{{sub.0}}</h5></div>" data-content="<div>{{sub.1}}</div>">{{sub.0}}</a>
-            {% endfor %}
-        </td>
-        <td>{{result.1}}</h></td>
-        <td>{{result.2}}</a></td>
-    </tr>
-
-
-</div>
-{% endfor %}
-
-
-<!--        <td>{{result.comment.value}}</td> /-->
-
-
-
-<script>
-    $(document).ready(function(){
-        $('[data-toggle="popover"]').popover({
-            html:true,
-        });   
-    });
-</script>
-
 {% endblock content %}

@@ -1,0 +1,65 @@
+{% extends 'main.html' %}
+
+{% block content %}
+
+<!--This is homepage for the website 
+    Page gets tags, offers, offer_count and  offer_count_old  as input /-->
+
+<!-- Styling for Div containers /-->
+<style>
+    .home-container{
+        display: grid;
+        grid-template-columns: 3fr 10fr 3fr; 
+    }
+
+</style>
+
+
+{% include 'navbar.html' %}
+
+<div class="container text-center">
+
+    <div>
+        <h2>{{mytitle}}</h2>
+        <h2></h2>
+        <h2></h2>
+    </div>
+
+    <div>
+        <table>
+            
+            
+            <tr>
+                {% for result in alternative %}
+                    {% if result.1 != '' %}
+                        <td> 
+                            <a tabindex="0" class="btn btn-lg btn-danger" role="button" data-toggle="popover" data-trigger="focus" title="<div><h5>{{result.0}}</h5></div>" data-content="<div>{{result.1}}</div>">{{result.0}}</a>
+                        </td>
+                    {% else %}
+                        <td> 
+                            <a tabindex="0" class="btn btn-lg" role="button" data-trigger="focus" title="<div><h5>{{result.0}}</h5></div>" data-content="<div>{{result.1}}</div>">{{result.0}}</a>
+                        </td>
+                    {% endif %}
+                {% endfor %}
+            </tr>
+        </table>
+
+    </div>
+
+</div>
+
+
+<!--        <td>{{result.comment.value}}</td> /-->
+
+
+
+<script>
+    $(document).ready(function(){
+        $('[data-toggle="popover"]').popover({
+            html:true,
+        });   
+    });
+</script>
+
+
+{% endblock content %}

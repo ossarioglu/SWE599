@@ -1,0 +1,48 @@
+{% extends 'main.html' %}
+
+{% block content %}
+
+<!--This is homepage for the website 
+    Page gets tags, offers, offer_count and  offer_count_old  as input /-->
+
+<!-- Styling for Div containers /-->
+<style>
+    .home-container{
+        display: grid;
+        grid-template-columns: 3fr 10fr 3fr; 
+    }
+</style>
+
+{% include 'navbar.html' %}
+
+
+<h3> {{count}} items are found having "{{key}}" at title  </h3>
+
+<div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Scientific Article</th>
+                <th scope="col">Publication Date</th>
+                <th scope="col">Publication Year</th>
+                <th scope="col">Digital Object Identifier</th>
+                <th scope="col">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+    {% for result in resultsWP %}
+        <tr>
+            <th scope="row">{{ forloop.counter }}</th>
+            <td><a href="{{result.1}}"> {{result.2}}</a></td>
+            <td>{{result.3}}</td>
+            <td>{{result.4}}</td>
+            <td>{{result.5}}</td>
+            <td><a href="{% url 'showdetails' result.0 %}"> Details</a></td>
+        </tr>
+    {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock content %}

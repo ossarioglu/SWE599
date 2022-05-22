@@ -1,13 +1,20 @@
+import string
 from django.shortcuts import render
 from SPARQLWrapper import SPARQLWrapper, JSON
 from datetime import datetime, timedelta
 
 import requests
+import json
 from django.http import JsonResponse
 
 
 
 def home(request):
+    context = {'offers':'', 'tags':'', 'offer_count':'', 'key':'', 'count':'', 'resultsWP':''}
+    return render(request, 'base/home.html', context)
+
+
+def search(request):
     
     myresult =[]
 
@@ -30,25 +37,6 @@ def home(request):
         if selection == "searchall":
             dateexpression1 = datetime.strftime(datetime.today() - timedelta(days=365000), '%Y-%m-%d')
 
-        sqlCrypto = """
-            SELECT ?item ?itemLabel
-
-            WHERE { 
-            
-                {?item wdt:P31 wd:Q13479982 . }
-                    UNION
-                {?item wdt:P31 wd:Q20514253 . }
-                    UNION
-                {?item wdt:P31 wd:Q109657450 . }
-                    UNION
-                {?item wdt:P31 wd:Q10836209 . }
-
-                SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
-            }   
-        """
-
-
-
         sqlArticle = f"""
             SELECT ?item ?itemLabel ?when (YEAR(?when) as ?date) ?DOI
             WHERE
@@ -67,30 +55,37 @@ def home(request):
             ?item wdt:P356 ?DOI.
 
             FILTER(CONTAINS(LCASE(?itemLabel), "{search}")).
+            
             FILTER ((?when > "{dateexpression1}"^^xsd:dateTime) && (?when <= "{dateexpression2}"^^xsd:dateTime)).
             SERVICE wikibase:label {{ bd:serviceParam wikibase:language "en" }}
             }}
-            ORDER BY DESC(?item)
+            ORDER BY DESC(?when)
         """
     
         sql = sqlArticle
         
-
-
-        #context = {'offers':'', 'tags':'', 'offer_count':'','users':'', 'notes':'', 'offer_count_old':'', 'resultsWP':findArticlesWikidata(sql),'resultsDB':findArticlesDBpedia('Bitcoin')}
+        print(sql)
         myresult = findArticlesWikidata(sql)
-    
-    alternative = []
 
-    for result in myresult:
-        sub = []
-        sub.append(splitExpression(result["itemLabel"]["value"]))
-        sub.append(result["when"]["value"])
-        sub.append(result["date"]["value"])
-        alternative.append (sub)
+    context = {'offers':'', 'tags':'', 'offer_count':'', 'key':search, 'count':len(myresult), 'resultsWP':myresult}
+    return render(request, 'base/search.html', context)
 
-    context = {'offers':'', 'tags':'', 'offer_count':'','alternative':alternative, 'key':search, 'count':len(myresult), 'resultsWP':myresult}
-    return render(request, 'base/home.html', context)
+def detailedView(request, qurl):
+
+  #  qurl.replace('http://www.wikidata.org/entity/', '')
+    output = wikiAPI(qurl)
+
+    for mylist in output['search']:
+        mytitle = mylist['label']
+
+    annotationlist= []
+    annotationlist = showannotation(mytitle)
+
+    context = {'alternative':annotationlist, 'mytitle': mytitle}
+  #  context = {'results':output,'alternative':alternative}
+
+    return render(request, 'base/detail.html', context) 
+
 
 
 def findArticlesWikidata(wikisql):
@@ -98,12 +93,23 @@ def findArticlesWikidata(wikisql):
     sparql.setQuery(wikisql)
     sparql.setReturnFormat(JSON)
     results = sparql.query().convert()
-    return results["results"]["bindings"]
+    result = results["results"]["bindings"]
 
+    output = []
+    for item in result:
+        sub = []
+        myQ = item["item"]["value"]
+        myQ = myQ.replace('http://www.wikidata.org/entity/', '')
+        sub.append(myQ)
+        sub.append(item["item"]["value"])
+        sub.append(item["itemLabel"]["value"])
+        sub.append(item["when"]["value"])
+        sub.append(item["date"]["value"])
+        sub.append(item["DOI"]["value"])
+        output.append(sub)
+    return output
 
 def findArticlesDBpedia(keys):
-
-    print(keys) 
 
     sparql = SPARQLWrapper("http://dbpedia.org/sparql")
     sparql.setQuery(f'''
@@ -119,35 +125,42 @@ def findArticlesDBpedia(keys):
     finaloutput = ''
     for output in result:
         finaloutput = output["comment"]["value"]
-        print(finaloutput) 
 
     return finaloutput
 
-def splitExpression(expression):
+def showannotation(expression):
     output = []
-    myList = expression.split()
+    new_string = expression.translate(str.maketrans('', '', string.punctuation))
+    myList = new_string.split()
     for item in myList:
         sub = []
-        print(datetime.now())
         sub.append(item)
-        sub.append(wikiAPI(item))
-        print(sub)
+        sub.append(refineannotaion(item))
         #sub.append(findArticlesDBpedia(item.capitalize()))
         output.append(sub)
     return output
 
+def refineannotaion(expression):
+    output = wikiAPI(expression)
+
+    result = ''
+    for mylist in output['search']: 
+        print(result)
+        if mylist['label'].lower() == expression.lower():
+            if "description" in mylist:
+                if mylist['description'] != 'Wikimedia disambiguation page':
+                    result = result + '<p>' + mylist['description'] + '<p>'
+
+    return result
 
 def wikiAPI(query: str) -> JsonResponse:
     BASE_URL = 'https://www.wikidata.org/w/api.php'
     SEARCH_QS = '?action=wbsearchentities&format=json&language=en&type=item&continue=0&search={0}'
-    SEARCH_QS2 = '?action=wbgetentities&sites=enwiki&titles={0}&props=descriptions&languages=en&format=json'
 
     request_uri = BASE_URL + SEARCH_QS.format(query)
     payload={}
     headers={}
     
-    response = requests.request('GET', request_uri, headers=headers, data=payload).json
-
-  
+    response = requests.request('GET', request_uri, headers=headers, data=payload).json()
 
     return response

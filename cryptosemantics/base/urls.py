@@ -7,5 +7,6 @@ urlpatterns = [
 
     # URL for home page
     path('', views.home, name="home"),
-
+    path('search/', views.search, name="search"),
+    path('detail/<qurl>', views.detailedView, name ="showdetails"),
 ]
