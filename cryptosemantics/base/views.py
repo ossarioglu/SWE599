@@ -55,9 +55,9 @@ def search(request):
             ?item wdt:P356 ?DOI.
 
             FILTER(CONTAINS(LCASE(?itemLabel), "{search}")).
+            FILTER(CONTAINS(LANG(?itemLabel), "en")).
             
             FILTER ((?when > "{dateexpression1}"^^xsd:dateTime) && (?when <= "{dateexpression2}"^^xsd:dateTime)).
-            SERVICE wikibase:label {{ bd:serviceParam wikibase:language "en" }}
             }}
             ORDER BY DESC(?when)
         """
