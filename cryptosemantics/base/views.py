@@ -2,6 +2,21 @@ from django.shortcuts import render
 from SPARQLWrapper import SPARQLWrapper, JSON
 from datetime import datetime, timedelta
 
+import requests
+from django.http import JsonResponse
+
+
+def wikiAPI(query):
+    BASE_URL = 'https://www.wikidata.org/w/api.php'
+    SEARCH_QS = '?action=wbsearchentities&format=json&language=en&type=item&continue=0&search={0}'
+
+    request_uri = BASE_URL + SEARCH_QS.format(query)
+    payload={}
+    headers={}
+    
+    response = requests.request('GET', request_uri, headers=headers, data=payload)
+    return JsonResponse({'response': response.json()})
+
 
 def home(request):
     
@@ -14,7 +29,6 @@ def home(request):
     dateexpression1 = datetime.strftime(datetime.today() - timedelta(days=365000), '%Y-%m-%d')
 
     if selection != '':
-
 
         if selection == "searchtoday":
             dateexpression1 = datetime.strftime(datetime.today() - timedelta(days=1), '%Y-%m-%d')
@@ -47,7 +61,7 @@ def home(request):
 
 
         sqlArticle = f"""
-            SELECT ?item ?itemLabel ?when (YEAR(?when) as ?date)
+            SELECT ?item ?itemLabel ?when (YEAR(?when) as ?date) ?DOI
             WHERE
             {{
             ?item wdt:P31 wd:Q13442814.  #Scientific article  
@@ -61,7 +75,7 @@ def home(request):
             {{ ?item wdt:P921 wd:Q10836209 }} #Digital Currency
             
             ?item wdt:P577 ?when.
-            
+            ?item wdt:P356 ?DOI.
 
             FILTER(CONTAINS(LCASE(?itemLabel), "{search}")).
             FILTER ((?when > "{dateexpression1}"^^xsd:dateTime) && (?when <= "{dateexpression2}"^^xsd:dateTime)).
@@ -69,14 +83,24 @@ def home(request):
             }}
             ORDER BY DESC(?item)
         """
-        print(sqlArticle)
+    
         sql = sqlArticle
         
 
 
         #context = {'offers':'', 'tags':'', 'offer_count':'','users':'', 'notes':'', 'offer_count_old':'', 'resultsWP':findArticlesWikidata(sql),'resultsDB':findArticlesDBpedia('Bitcoin')}
         myresult = findArticlesWikidata(sql)
-    context = {'offers':'', 'tags':'', 'offer_count':'','users':'', 'key':search, 'count':len(myresult), 'resultsWP':myresult}
+    
+    alternative = []
+
+    for result in myresult:
+        sub = []
+        sub.append(splitExpression(result["itemLabel"]["value"]))
+        sub.append(result["when"]["value"])
+        sub.append(result["date"]["value"])
+        alternative.append (sub)
+
+    context = {'offers':'', 'tags':'', 'offer_count':'','alternative':alternative, 'key':search, 'count':len(myresult), 'resultsWP':myresult}
     return render(request, 'base/home.html', context)
 
 
@@ -90,6 +114,8 @@ def findArticlesWikidata(wikisql):
 
 def findArticlesDBpedia(keys):
 
+    print(keys) 
+
     sparql = SPARQLWrapper("http://dbpedia.org/sparql")
     sparql.setQuery(f'''
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -99,4 +125,23 @@ def findArticlesDBpedia(keys):
         }}''')
     sparql.setReturnFormat(JSON)
     results = sparql.query().convert()
-    return results["results"]["bindings"]
+    result = results["results"]["bindings"]
+
+    finaloutput = ''
+    for output in result:
+        finaloutput = output["comment"]["value"]
+        print(finaloutput) 
+
+    return finaloutput
+
+def splitExpression(expression):
+    output = []
+    myList = expression.split()
+    for item in myList:
+        sub = []
+        print(item) 
+        print(datetime.now())
+        sub.append(item)
+        sub.append(findArticlesDBpedia(item.capitalize()))
+        output.append(sub)
+    return output
