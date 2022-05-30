@@ -1,0 +1,175 @@
+{% extends 'main.html'%}
+
+{% block content %}
+
+{% load static %}
+<!-- This page is for sign-in and sign-up
+    Page gets page as input /-->
+
+<!-- Styling for Div containers /-->
+<style>
+    .login-container{
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr; 
+    }
+</style>
+
+<div class=" d-flex align-items-center min-vh-100">
+
+    <div class="container text-center">
+        
+        <div class="login-container">
+
+            <div>
+
+            </div>
+
+            <!-- If this page is called for Sign-in, this block is processed /-->
+            <div>
+                <div class="container text-center">
+                    <img src="{% static 'images/logo.png' %}" width="360" height="140" />            
+                </div>
+            
+            {% if page == 'signin' %}
+            
+                <form method="POST" accept="">
+                    {% csrf_token %}
+
+                    <!-- Text Input for username /-->
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="floatingInput" name="username" placeholder="Enter Username">
+                        <label for="floatingInput">Username</label>
+                    </div>
+                    
+                    <!-- Password Input for password /-->
+                    <div class="form-floating">
+                        <input type="password" class="form-control" id="floatingPassword" name="password" placeholder="Password">
+                        <label for="floatingPassword">Password</label>
+                    </div>
+
+                    <div class="col-12">
+                        <button class="btn btn-outline-primary" type="submit">Sign In</button>
+                    </div>
+
+                </form>
+
+                <p> Haven't signed up yet?</p>
+                <a class="btn btn-outline-success" href="{% url 'signup' %}" role="button"> Sign Up</a>
+
+            
+
+
+            <!-- If this page is called for Sign-up, this block is processed /-->
+            {% else %}
+
+              
+                <form method="POST" accept="">
+                    {% csrf_token %}
+
+                    <!-- Text Input for username /-->
+                    {{ form.non_field_errors }}
+                    <div class="form-floating mb-3">
+                        {{ form.username.errors }}
+                        <input type="text" 
+                            class="form-control" 
+                            id='{{form.username.id_for_label}}' 
+                            name='{{form.username.html_name}}' 
+                            {% if form.username.field.required %}required{% endif %}
+                            value='{% if form.username.value %}{{ form.username.value }}{% endif %}' 
+                            placeholder='Enter Username'>
+                        <label for="{{ form.username.id_for_label }}">Username</label>
+                    </div>
+
+                    <!-- Password Input for password /-->
+                    <div class="form-floating mb-3">
+                        {{ form.password1.errors }}
+                        <input type="password" 
+                            class="form-control" 
+                            id='{{form.password1.id_for_label}}' 
+                            name='{{form.password1.html_name}}' 
+                            {% if form.password.field.required %}required{% endif %}
+                            value='{% if form.password1.value %}{{ form.password1.value }}{% endif %}' 
+                            placeholder='Type Password'>
+                        <label for="{{ form.password1.id_for_label }}">Password</label>
+                    </div>
+
+                    <!-- Password Input for verifying password /-->
+                    <div class="form-floating mb-3">
+                        {{ form.password2.errors }}
+                        <input type="password" 
+                            class="form-control" 
+                            id='{{form.password2.id_for_label}}' 
+                            name='{{form.password2.html_name}}' 
+                            {% if form.password2.field.required %}required{% endif %}
+                            value='{% if form.password2.value %}{{ form.password2.value }}{% endif %}' 
+                            placeholder='Re-type Password'>
+                        <label for="{{ form.password2.id_for_label }}">Re-Type Password</label>
+                    </div>
+
+                    <!-- Text Input for first name of new user /-->
+                    <div class="form-floating mb-3">
+                        {{ form.first_name.errors }}
+                        <input type="text" 
+                            class="form-control" 
+                            id='{{form.first_name.id_for_label}}' 
+                            name='{{form.first_name.html_name}}' 
+                            {% if form.first_name.field.required %}required{% endif %}
+                            value='{% if form.first_name.value %}{{ form.first_name.value }}{% endif %}' 
+                            placeholder='Your First Name'>
+                        <label for="{{ form.first_name.id_for_label }}">First Name</label>
+                    </div>
+
+                    <!-- Text Input for surname name of new user /-->
+                    <div class="form-floating mb-3">
+                        {{ form.last_name.errors }}
+                        <input type="text" 
+                            class="form-control" 
+                            id='{{form.last_name.id_for_label}}' 
+                            name='{{form.last_name.html_name}}' 
+                            {% if form.last_name.field.required %}required{% endif %}
+                            value='{% if form.last_name.value %}{{ form.last_name.value }}{% endif %}' 
+                            placeholder='Your Surname Name'>
+                        <label for="{{ form.last_name.id_for_label }}">Surname</label>
+                    </div>
+
+                    <!-- Text Input for email of new user /-->
+                    <div class="form-floating mb-3">
+                        {{ form.email.errors }}
+                        <input type="text" 
+                            class="form-control" 
+                            id='{{form.email.id_for_label}}' 
+                            name='{{form.email.html_name}}' 
+                            {% if form.email.field.required %}required{% endif %}
+                            value='{% if form.email.value %}{{ form.email.value }}{% endif %}' 
+                            placeholder='Email Address'>
+                        <label for="{{ form.email.id_for_label }}">Email</label>
+                    </div>
+
+                    <!-- Text Input for location of new user /-->
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="floatingInput" name="userdetails" placeholder="About You">
+                        <label for="floatingInput">User Details</label>
+                    <h5>     </h5>
+                    <div class="col-12">
+                        <button class="btn btn-outline-success" type="submit">Sign Up</button>
+                    </div>
+
+                </form>
+
+                <!-- If user is already signed-up, it's asked to be directed to login url /-->
+                <p> Already signed up yet?</p>
+                <a class="btn btn-outline-primary" href="{% url 'login' %}" role="button"> Sign In</a>
+
+            </div>
+            {% endif %}
+
+
+            <div>
+                
+            </div>
+            
+        </div>
+    
+    </div>
+</div>
+{% endblock content %}

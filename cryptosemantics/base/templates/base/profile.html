@@ -1,0 +1,103 @@
+{% extends 'main.html' %}
+
+{% block content %}
+
+
+<!-- This page is displaying user profile
+    Page gets user, offers as input /-->
+
+<!-- Styling for Div containers /-->
+<style>
+    .profile-container{
+        display: grid;
+        grid-template-columns: 1fr 3fr 1fr; 
+    }
+    .profile-details{
+        display: grid;
+        grid-template-columns: 2fr 2fr; 
+    }
+</style>
+
+<div class="profile-container">
+    <div></div>
+
+    <div>
+        <!-- Display users First and Last name, and have a button for updating profile
+            When button is clicked user is directed to update-profile url with parameter of username /-->
+
+        <hr>  
+        <div style="display:grid;grid-template-columns: 5fr 1fr;">
+            <div>      
+                <h3> {{user.first_name}} {{user.last_name}}</h3>
+            </div>
+            <div>
+                <a class="btn btn-success btn-sm" href="{% url 'update-profile' user.username %}" role="button">Edit Profile</a>
+            </div>
+        </div>
+        <hr>  
+
+        <!-- Details of user is displayed /-->
+        <span class="profile-details">
+
+            <div>           
+                <img src="{{user.profile.userPicture.url}}" class="rounded-circle" width="200" height="200" >
+            </div>
+
+            <div>
+                <h6> Username: {{user.username}}</h6>
+                <h6> Rating: {{user.profile.userReputation}}</h6>
+                <h6> Credit: {{user.profile.creditAmount}}</h6>
+            </div>   
+        </span>
+        <hr>
+        <span class="profile-details">
+            <div>
+                <h6> email: {{user.email}}</h6>
+                <h6> User Type: {{user.profile.userType}}</h6>
+                <h6> Location: {{user.profile.userLocation}}</h6>
+                <h6> Credit In Process : {{user.profile.creditInprocess}}</h6>   
+            </div>
+
+            <div>
+                <h6> Details: </h6>
+                <div style="width:300px;height:100px;overflow:auto;">{{user.profile.userDetails}}</div>
+            </div>
+        </span> 
+
+        <!-- Services provided by user is displayed 
+            For loop is used to display all services/-->
+        <span>
+            <hr>  
+            <h4>Offerings and Events</h4>
+            <hr>  
+        {% for offer_name in offers %}
+            <h5><a href="{% url 'offerings' offer_name.serviceID %}">{{ offer_name.keywords}}</a></h5>
+            {% if request.user == offer_name.providerID %}
+                <p class="text-black">Status: {{ offer_name.status}}</p>
+                {% if offer_name.startingDate|timesince >= "1 min"  %}
+                    <p class="text-danger">Deadline : Service is over</p>
+                {% else %}  
+                    <p class="text-black">Deadline: {{ offer_name.deadlineForUpdate}}</p>
+                {% endif %}  
+                <h6>  </h6>
+            {% endif %}
+            <span>@ {{ offer_name.providerID}}</span>
+                <p class="text-secondary">
+                    <h6>on {{ offer_name.startingDate}}</h6>
+                    <h6>for {{ offer_name.duration}} hours</h6>
+                    <h6>at {{ offer_name.location}}</h6>
+                    <small>{{ offer_name.tag}}</small>
+                </p>
+                <hr>    
+        {% endfor %}
+        </span>
+    </div>
+
+    <div>
+        
+    </div>
+
+
+</div>
+
+{% endblock content %}

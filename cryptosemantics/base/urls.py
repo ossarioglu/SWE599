@@ -9,4 +9,13 @@ urlpatterns = [
     path('', views.home, name="home"),
     path('search/', views.search, name="search"),
     path('detail/<qurl>', views.detailedView, name ="showdetails"),
+
+    # URLs for user interactions : login, logout, sign-up, listing profile info, or updating profile
+    path('login/', views.signinPage, name="login"),
+    path('logout/', views.signOut, name="logout"),
+    path('signup/', views.signUpPage, name="signup"),
+    path('profile/<str:userKey>/', views.userProfile, name ="user-profile"), 
+    path('update-profile/<str:userKey>/', views.updateProfile, name ="update-profile"), 
+
+
 ]

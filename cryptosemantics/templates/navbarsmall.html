@@ -7,45 +7,16 @@
     - User action menu 
 /-->
 
-<hr>
 
 
-<nav class="navbar navbar-expand-lg navbar-light bg-white">
-    <!-- This is for displaying Logo. Logo is linked to homepage /-->
-    <div class="col-2">
-        <a href="{% url 'home' %}">
-            <img src="{% static 'images/logo.png' %}" width="200" height="50" />
-            <!--h1> socializeUS Logo</h1-->
-        </a> 
+
+<nav class="navbar navbar-expand-lg navbar-light bg-white ms-auto" >
+    <div class="col-10">
     </div>
-
-    <form class="row g-3 d-flex w-60 mx-auto" method="GET" action="{% url 'search' %}">
-        <div class="col-10">
-            <input class="form-control me-2" type="text" name="q" placeholder="Search Articles" />
-        </div>
-        <div class="col-2">
-            <button class="btn btn-outline-success" type="submit">Search</button>
-        </div> 
-        <div class="col-2">
-            <label for="listtoday"><input type="radio" name="listselection" value="searchtoday" id="listtoday">Today</label>
-        </div>
-        <div class="col-2">
-            <label for="listweek"><input type="radio" name="listselection" value="searchweek" id="listweek">This Week</label>
-        </div>
-        <div class="col-2">
-            <label for="listmonth"><input type="radio" name="listselection" value="searchmonth" id="listmonth">This Month</label>
-        </div>
-        <div class="col-2">
-            <label for="listyear"><input type="radio" name="listselection" value="searchyear" id="listyear"> This Year</label>
-        </div>
-        <div class="col-2">
-            <label for="listall"><input type="radio" name="listselection" value="searchall" id="listall" checked> All</label>
-        </div>
     
-    </form>
-
     {% if request.user.is_authenticated %} 
     <!-- If user is authenticated, then user profile picture is displayed with a badge on it showing number of unread notifications/-->
+        
         <img src="{{request.user.profile.userPicture.url}}" class="rounded-circle position-relative"  width="50" height="50"> 
 
         <!-- This is dropdown menu for user having options:
@@ -73,8 +44,6 @@
             <a class="btn btn-success" href="{% url 'signup' %}" role="button">Sign Up</a>
         </div> 
     {% endif %}
-
 </nav>
 
 
-<hr>
