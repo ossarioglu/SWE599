@@ -247,8 +247,7 @@ def signUpPage(request):
 # Services offered by user is send to front-end
 def userProfile(request, userKey):
     user = User.objects.get(username=userKey)
-    offers = user.offering_set.all()
-    context = {'user':user, 'offers':offers}
+    context = {'user':user}
     return render(request, 'base/profile.html', context) 
 
 # This is for updating user profile

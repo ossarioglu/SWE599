@@ -3,10 +3,15 @@
 {% block content %}
 
 
-<!-- This page is displaying user profile
-    Page gets user, offers as input /-->
+{% load static %}
+
+<!--This is homepage for the website 
+    Page gets tags, offers, offer_count and  offer_count_old  as input /-->
 
 <!-- Styling for Div containers /-->
+
+{% include 'navbar.html' %}
+
 <style>
     .profile-container{
         display: grid;
@@ -44,53 +49,19 @@
             </div>
 
             <div>
-                <h6> Username: {{user.username}}</h6>
-                <h6> Rating: {{user.profile.userReputation}}</h6>
-                <h6> Credit: {{user.profile.creditAmount}}</h6>
+                <h6> <b class="text-primary">Username: </b>{{user.username}}</h6>
+                <h6> <b class="text-primary">email:</b> {{user.email}} </h6>
+                <h6> <b class="text-primary">Details: </b></h6>
+                <div style="width:300px;height:100px;overflow:auto;">{{user.profile.userDetails}}</div>
             </div>   
         </span>
         <hr>
         <span class="profile-details">
             <div>
-                <h6> email: {{user.email}}</h6>
-                <h6> User Type: {{user.profile.userType}}</h6>
-                <h6> Location: {{user.profile.userLocation}}</h6>
-                <h6> Credit In Process : {{user.profile.creditInprocess}}</h6>   
-            </div>
-
-            <div>
-                <h6> Details: </h6>
-                <div style="width:300px;height:100px;overflow:auto;">{{user.profile.userDetails}}</div>
+                
             </div>
         </span> 
 
-        <!-- Services provided by user is displayed 
-            For loop is used to display all services/-->
-        <span>
-            <hr>  
-            <h4>Offerings and Events</h4>
-            <hr>  
-        {% for offer_name in offers %}
-            <h5><a href="{% url 'offerings' offer_name.serviceID %}">{{ offer_name.keywords}}</a></h5>
-            {% if request.user == offer_name.providerID %}
-                <p class="text-black">Status: {{ offer_name.status}}</p>
-                {% if offer_name.startingDate|timesince >= "1 min"  %}
-                    <p class="text-danger">Deadline : Service is over</p>
-                {% else %}  
-                    <p class="text-black">Deadline: {{ offer_name.deadlineForUpdate}}</p>
-                {% endif %}  
-                <h6>  </h6>
-            {% endif %}
-            <span>@ {{ offer_name.providerID}}</span>
-                <p class="text-secondary">
-                    <h6>on {{ offer_name.startingDate}}</h6>
-                    <h6>for {{ offer_name.duration}} hours</h6>
-                    <h6>at {{ offer_name.location}}</h6>
-                    <small>{{ offer_name.tag}}</small>
-                </p>
-                <hr>    
-        {% endfor %}
-        </span>
     </div>
 
     <div>
