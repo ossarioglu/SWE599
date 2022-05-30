@@ -17,6 +17,8 @@ class Profile(models.Model):
 
 class Searchresult(models.Model):
     recordID = models.UUIDField(primary_key = True, default = uuid.uuid4, editable = False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
     searchCode = models.CharField(max_length=15)
     def __str__(self):
-        return self.tagName
+        return f'{self.recordID}'

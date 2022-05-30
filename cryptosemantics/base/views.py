@@ -75,8 +75,14 @@ def search(request):
         
         print(sql)
         myresult = findArticlesWikidata(sql)
+        mySaved = []
+        if request.user.is_authenticated:
+            userRecords = Searchresult.objects.filter(user=request.user)
+            for list in userRecords:
+                mySaved.append(list.searchCode)
 
-    context = {'offers':'', 'tags':'', 'offer_count':'', 'key':search, 'count':len(myresult), 'resultsWP':myresult}
+    context = {'offers':'', 'tags':'', 'userRecords':mySaved, 'key':search, 'count':len(myresult), 'resultsWP':myresult}
+  
     return render(request, 'base/search.html', context)
 
 def detailedView(request, qurl):
@@ -285,3 +291,21 @@ def updateProfile(request, userKey):
     context = {'form':form,'myProfile':myProfile, 'user':user}
     return render(request, 'base/update_profile.html', context)
 
+def saveRecord(request, qurl):
+
+  #  qurl.replace('http://www.wikidata.org/entity/', '')
+
+    newSearch = Searchresult.objects.create(user=request.user, searchCode=qurl)
+    newSearch.save()
+
+    #context = {'alternative':annotationlist, 'mytitle': mytitle}
+
+    return redirect('home')
+
+def deleteRecord(request, qurl):
+    offer = Searchresult.objects.get(user=request.user, searchCode=qurl)
+    
+    if request.user == request.user:
+        offer.delete()
+    
+    return redirect('home')

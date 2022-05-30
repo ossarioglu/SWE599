@@ -16,7 +16,7 @@
 {% include 'navbar.html' %}
 
 
-<h3> {{count}} items are found having "{{key}}" at title  </h3>
+<h3> {{count}} items are found having "{{key}}" at title  {{userRecords}} </h3>
 
 <div>
     <table class="table">
@@ -38,7 +38,14 @@
             <td>{{result.3}}</td>
             <td>{{result.4}}</td>
             <td>{{result.5}}</td>
-            <td><a href="{% url 'showdetails' result.0 %}"> Details</a></td>
+            <td>{% if request.user.is_authenticated %} 
+                    {% if result.0 in userRecords %}
+                        <a class="btn btn-danger btn-sm" href="{% url 'delete' result.0 %}" role="button">Delete</a>
+                    {% else %}
+                        <a class="btn btn-success btn-sm" href="{% url 'save' result.0 %}" role="button">Save</a>
+                    {% endif %}
+                {% endif %}
+                    <a class="btn btn-primary btn-sm" href="{% url 'showdetails' result.0 %}" role="button">Details</a></td>
         </tr>
     {% endfor %}
         </tbody>

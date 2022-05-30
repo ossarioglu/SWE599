@@ -17,5 +17,7 @@ urlpatterns = [
     path('profile/<str:userKey>/', views.userProfile, name ="user-profile"), 
     path('update-profile/<str:userKey>/', views.updateProfile, name ="update-profile"), 
 
+    path('save/<qurl>/', views.saveRecord, name ="save"), 
+    path('deleter/<qurl>/', views.deleteRecord, name ="delete"), 
 
 ]
