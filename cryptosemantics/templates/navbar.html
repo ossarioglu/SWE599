@@ -61,7 +61,7 @@
                 <p class="dropdown-item text-primary"> Credits:  Ch </p>
                 <hr>
                 <a class="dropdown-item" href="{% url 'user-profile' request.user %}">Profile</a>
-                <a class="dropdown-item" href="">Saved Queries</a>
+                <a class="dropdown-item" href="{% url 'searchsaved' %}">Saved Queries</a>
                 <div class="dropdown-divider"></div>
                 <a class="dropdown-item text-danger" href="{% url 'logout' %}">Logout</a>
             </div>

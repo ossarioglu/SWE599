@@ -26,6 +26,7 @@ def home(request):
 def search(request):
     
     myresult =[]
+    keynote = ''
 
     search = request.GET.get('q') if request.GET.get('q') != None else ''
     selection = request.GET.get("listselection", None)
@@ -80,8 +81,9 @@ def search(request):
             userRecords = Searchresult.objects.filter(user=request.user)
             for list in userRecords:
                 mySaved.append(list.searchCode)
+        keynote = f'{len(myresult)} items are found having "{search}" at title'
 
-    context = {'offers':'', 'tags':'', 'userRecords':mySaved, 'key':search, 'count':len(myresult), 'resultsWP':myresult}
+    context = {'offers':'', 'tags':'', 'userRecords':mySaved, 'key':keynote, 'count':len(myresult), 'resultsWP':myresult}
   
     return render(request, 'base/search.html', context)
 
@@ -309,3 +311,56 @@ def deleteRecord(request, qurl):
         offer.delete()
     
     return redirect('home')
+
+
+def searchSaved(request):
+    
+    myresult =[]
+    filtersql =''
+    
+    mySaved = []
+    if request.user.is_authenticated:
+        userRecords = Searchresult.objects.filter(user=request.user)
+        for list in userRecords:
+            mySaved.append(list.searchCode)
+            filtersql = filtersql + '?item = wd:' + list.searchCode + '||'
+            
+    if len(mySaved) != 0:
+        filtersql = filtersql[:-1]
+        filtersql = filtersql[:-1]
+        filtersql = 'FILTER(' + filtersql + ').'
+        sqlArticle = f"""
+            SELECT ?item ?itemLabel ?when (YEAR(?when) as ?date) ?DOI
+            WHERE
+            {{
+            ?item wdt:P31 wd:Q13442814.  #Scientific article  
+            ?item rdfs:label ?itemLabel.
+            {{ ?item wdt:P921 wd:Q13479982 }} #Cryptocurrency
+            UNION
+            {{ ?item wdt:P921 wd:Q20514253 }} #Blockchain
+            UNION
+            {{ ?item wdt:P921 wd:Q109657450 }} #Blockchain Framework
+            UNION
+            {{ ?item wdt:P921 wd:Q10836209 }} #Digital Currency
+            
+            ?item wdt:P577 ?when.
+            ?item wdt:P356 ?DOI.
+
+            {filtersql}    
+
+            FILTER(CONTAINS(LCASE(?itemLabel), "")).
+            FILTER(CONTAINS(LANG(?itemLabel), "en")).            
+            }}
+            ORDER BY DESC(?when)
+        """
+        sql = sqlArticle
+        
+        print(sql)
+        myresult = findArticlesWikidata(sql)
+ 
+        context = {'offers':'', 'tags':'', 'userRecords':mySaved, 'key':'Saved Articles', 'count':len(myresult), 'resultsWP':myresult}
+    
+        return render(request, 'base/search.html', context)
+    
+    return HttpResponse('There are no recorded items')
+

@@ -8,6 +8,7 @@ urlpatterns = [
     # URL for home page
     path('', views.home, name="home"),
     path('search/', views.search, name="search"),
+    path('searchsaved/', views.searchSaved, name="searchsaved"),
     path('detail/<qurl>', views.detailedView, name ="showdetails"),
 
     # URLs for user interactions : login, logout, sign-up, listing profile info, or updating profile
