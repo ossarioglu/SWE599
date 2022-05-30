@@ -74,7 +74,6 @@ def search(request):
     
         sql = sqlArticle
         
-        print(sql)
         myresult = findArticlesWikidata(sql)
         mySaved = []
         if request.user.is_authenticated:
