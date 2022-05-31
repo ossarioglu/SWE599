@@ -103,8 +103,8 @@ def detailedView(request, qurl):
     return render(request, 'base/detail.html', context) 
 
 def findArticlesWikidata(wikisql):
-    headers = 'User-Agent': 'SemanticSearchBot/0.0 (https://github.com/ossarioglu/SWE599/; osman.sarioglu@boun.edu.tr)'
-    #headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.67 Safari/537.36'}
+    #headers = 'User-Agent': 'SemanticSearchBot/0.0 (https://github.com/ossarioglu/SWE599/; osman.sarioglu@boun.edu.tr)'
+    headers = 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.67 Safari/537.36'
     sparql = SPARQLWrapper("https://query.wikidata.org/sparql",agent=headers)
     sparql.setQuery(wikisql)
     sparql.setReturnFormat(JSON)
