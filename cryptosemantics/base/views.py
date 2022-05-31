@@ -103,7 +103,8 @@ def detailedView(request, qurl):
     return render(request, 'base/detail.html', context) 
 
 def findArticlesWikidata(wikisql):
-    sparql = SPARQLWrapper("https://query.wikidata.org/sparql")
+    headers = {'User-Agent': 'SemanticSearchBot/0.0 (https://github.com/ossarioglu/SWE599/; osman.sarioglu@boun.edu.tr)'}
+    sparql = SPARQLWrapper("https://query.wikidata.org/sparql",agent=headers)
     sparql.setQuery(wikisql)
     sparql.setReturnFormat(JSON)
     results = sparql.query().convert()
@@ -173,7 +174,7 @@ def wikiAPI(query: str) -> JsonResponse:
 
     request_uri = BASE_URL + SEARCH_QS.format(query)
     payload={}
-    headers={}
+    headers={'User-Agent': 'SemanticSearchBot/0.0 (https://github.com/ossarioglu/SWE599/; osman.sarioglu@boun.edu.tr)'}
     
     response = requests.request('GET', request_uri, headers=headers, data=payload).json()
 
