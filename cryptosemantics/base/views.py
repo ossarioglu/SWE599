@@ -105,7 +105,7 @@ def detailedView(request, qurl):
 def findArticlesWikidata(wikisql):
     #headers = 'User-Agent': 'SemanticSearchBot/0.0 (https://github.com/ossarioglu/SWE599/; osman.sarioglu@boun.edu.tr)'
     #headers = 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.67 Safari/537.36'
-    headers = 'OsmanSelcukSarioglu from BOUN"
+    headers = 'SemanticSearchBot/0.0 (https://github.com/ossarioglu/SWE599/; osman.sarioglu@boun.edu.tr)'
     sparql = SPARQLWrapper("https://query.wikidata.org/sparql",agent=headers)
     sparql.setQuery(wikisql)
     sparql.setReturnFormat(JSON)
@@ -176,7 +176,7 @@ def wikiAPI(query: str) -> JsonResponse:
 
     request_uri = BASE_URL + SEARCH_QS.format(query)
     payload={}
-    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.67 Safari/537.36'}
+    headers = {'User-Agent': 'SemanticSearchBot/0.0 (https://github.com/ossarioglu/SWE599/; osman.sarioglu@boun.edu.tr)'}
     
     response = requests.request('GET', request_uri, headers=headers, data=payload).json()
 
