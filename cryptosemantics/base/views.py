@@ -197,7 +197,6 @@ def searchSaved(request):
         """
         sql = sqlArticle
         
-        print(sql)
         myresult = findArticlesWikidata(sql)
  
         context = {'offers':'', 'tags':'', 'userRecords':mySaved, 'key':'Saved Articles', 'count':len(myresult), 'resultsWP':myresult}
@@ -269,21 +268,6 @@ def search(request):
   
     return render(request, 'base/search.html', context)
 
-def detailedView(request, qurl):
-
-    output = wikiAPI(qurl,'title')
-    
-    for mylist in output['search']:
-        mytitle = mylist['label']
-
-    annotationlist= []
-    annotationlist = showannotation(mytitle)
-
-    context = {'alternative':annotationlist, 'mytitle': mytitle}
-  #  context = {'results':output,'alternative':alternative}
-
-    return render(request, 'base/detail.html', context) 
-
 def findArticlesWikidata(wikisql):
     #headers = 'User-Agent': 'SemanticSearchBot/0.0 (https://github.com/ossarioglu/SWE599/; osman.sarioglu@boun.edu.tr)'
     #headers = 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.67 Safari/537.36'
@@ -327,24 +311,118 @@ def findArticlesDBpedia(keys):
 
     return finaloutput
 
+def detailedView(request, qurl):
+
+    output = wikiAPI(qurl,'title')
+    
+    for mylist in output['search']:
+        mytitle = mylist['label']
+
+    annotationlist= []
+    annotationlist = showannotation(mytitle)
+
+    context = {'alternative':annotationlist, 'mytitle': mytitle}
+
+    return render(request, 'base/detail.html', context) 
+
 def showannotation(expression):
     output = []
+    
     new_string = expression.translate(str.maketrans('', '', string.punctuation))
     myList = new_string.split()
+
+    related =[]
     for item in myList:
         sub = []
         sub.append(item)
         sub.append(refineannotaion(item))
-        #sub.append(findArticlesDBpedia(item.capitalize()))
+        related.append(getrelationshipfromWikidata(item))
+        #sub.append(getrelationshipfromWikidata(item))
         output.append(sub)
+    print(related)
+    print(findsemantics(related))
+
     return output
+
+def getrelationshipfromWikidata(expression):
+    output = wikiAPI(expression.lower(),'title')
+    relatedresults = []
+    result = []
+    for mylist in output['search']: 
+        if mylist['label'].lower() == expression.lower():
+            if "description" in mylist:
+                if mylist['description'] != 'Wikimedia disambiguation page':
+                    result.append(mylist['id'])
+
+    
+    searchbyID = wikiAPI('|'.join(result),'id')
+    
+    relationship = []
+    sublevel = []
+    upperlevel =[]
+    alllisted =[]
+
+    if 'entities' in searchbyID:
+        for entity_id in searchbyID['entities']:
+            sublevel = []
+            sublevel.append(entity_id)
+            relationship = []
+            for claim_id in searchbyID['entities'][entity_id]['claims']:
+                if claim_id in ['P31', 'P279', 'P361', 'P366', 'P5008', 'P5125', 'P1343', 'P3095', 'P61', 'P495', 'P1424', 'P1441', 'P155', 'P156', 'P910']:
+                    for claim in searchbyID['entities'][entity_id]['claims'][claim_id]:
+                        relationship.append(claim['mainsnak']['datavalue']['value']['id'])
+                        alllisted.append(claim['mainsnak']['datavalue']['value']['id'])
+            sublevel.append(relationship)
+            upperlevel.append(sublevel)
+
+    relatedresults.append(result)
+    relatedresults.append(alllisted)
+    relatedresults.append(upperlevel)
+
+    return relatedresults
+
+
+def findsemantics(relatedlist):
+    
+    result = []
+    foundrelation = []
+    
+    for i in range(len(relatedlist)):
+        print(i)
+        j = 0
+        while j < len(relatedlist):
+            relations = []
+            if i == j:
+                j = j + 1
+            if j < len(relatedlist):
+                for item in relatedlist[i][0]:
+                    print(item)
+                    subrelations = []
+                    if item in relatedlist[j][1]:
+                        subrelations.append(i)
+                        subrelations.append(item)
+                        subrelations.append(j)
+                    relations.append(subrelations)
+                foundrelation.append(relations)
+                
+                for item in relatedlist[i][1]:
+                    print(item)
+                    subrelations = []
+                    if item in relatedlist[j][1]:
+                        subrelations.append(i)
+                        subrelations.append(item)
+                        subrelations.append(j)
+                    relations.append(subrelations)
+                foundrelation.append(relations)
+            j = j + 1 
+        result.append(foundrelation)
+    return result
 
 def refineannotaion(expression):
     output = wikiAPI(expression,'title')
 
     result = ''
     for mylist in output['search']: 
-        print(result)
         if mylist['label'].lower() == expression.lower():
             if "description" in mylist:
                 if mylist['description'] != 'Wikimedia disambiguation page':
@@ -356,7 +434,7 @@ def wikiAPI(query: str, selection:str) -> JsonResponse:
     BASE_URL = 'https://www.wikidata.org/w/api.php'
     
     if selection == 'title':
-        SEARCH = '?action=wbsearchentities&format=json&language=en&type=item&continue=0&search={0}'
+        SEARCH = '?action=wbsearchentities&format=json&language=en&type=item&continue=0&limit=50&search={0}'
     if selection == 'id':
         SEARCH = '?action=wbgetentities&ids={0}&languages=en&format=json'
 
