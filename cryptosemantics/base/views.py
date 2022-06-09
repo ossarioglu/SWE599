@@ -1,3 +1,4 @@
+from hashlib import new
 import string
 from SPARQLWrapper import SPARQLWrapper, JSON
 from datetime import datetime, timedelta
@@ -319,18 +320,23 @@ def detailedView(request, qurl):
         mytitle = mylist['label']
 
     annotationlist= []
-    annotationlist = showannotation(mytitle)
+    annotationlist, relationship = showannotation(mytitle)
 
-    context = {'alternative':annotationlist, 'mytitle': mytitle}
+    context = {'alternative':annotationlist, 'mytitle': mytitle, 'relationship':relationship}
 
     return render(request, 'base/detail.html', context) 
 
 def showannotation(expression):
     output = []
-    
+    result = []
+    newline= []
     new_string = expression.translate(str.maketrans('', '', string.punctuation))
     myList = new_string.split()
 
+    newline.append('')
+    newline.append(myList)
+    result.append(newline)
+    
     related =[]
     for item in myList:
         sub = []
@@ -339,12 +345,37 @@ def showannotation(expression):
         related.append(getrelationshipfromWikidata(item))
         #sub.append(getrelationshipfromWikidata(item))
         output.append(sub)
-    print(related)
-    print(findsemantics(related))
 
-    return output
+    foundrelation = findsemantics(related)
+
+    for i in range(len(foundrelation)):
+        newline= []
+        newline.append(myList[i])
+        newline.append(foundrelation[i])
+        result.append(newline)
+
+    return output, result
 
 def getrelationshipfromWikidata(expression):
+
+# 'P31' : Instance of
+# 'P279': Subclass
+# 'P361': Part of
+# 'P366': Has use
+# 'P1343': Described by source
+# 'P3095': Practiced by
+# 'P1424': topic's of main template
+# 'P1441': present in work
+# 'P155': follows
+# 'P156': followed by
+# 'P910': topic's main category
+# 'P4969': derivatice work
+# 'P2283': uses
+# 'P527': has part or parts
+# 'P277': programming language
+# 'P112': founded by
+# 'P9059': subdivision of this unit
+
     output = wikiAPI(expression.lower(),'title')
     relatedresults = []
     result = []
@@ -368,7 +399,7 @@ def getrelationshipfromWikidata(expression):
             sublevel.append(entity_id)
             relationship = []
             for claim_id in searchbyID['entities'][entity_id]['claims']:
-                if claim_id in ['P31', 'P279', 'P361', 'P366', 'P5008', 'P5125', 'P1343', 'P3095', 'P61', 'P495', 'P1424', 'P1441', 'P155', 'P156', 'P910']:
+                if claim_id in ['P31', 'P279', 'P361', 'P366', 'P1343', 'P3095', 'P1424', 'P1441', 'P155', 'P156', 'P910', 'P4969', 'P2283', 'P527', 'P277', 'P112', 'P9059'  ]:
                     for claim in searchbyID['entities'][entity_id]['claims'][claim_id]:
                         relationship.append(claim['mainsnak']['datavalue']['value']['id'])
                         alllisted.append(claim['mainsnak']['datavalue']['value']['id'])
@@ -385,38 +416,40 @@ def getrelationshipfromWikidata(expression):
 def findsemantics(relatedlist):
     
     result = []
-    foundrelation = []
-    
+    relationship = [ [0] * len(relatedlist) for i in range(len(relatedlist)) ]
+
     for i in range(len(relatedlist)):
-        print(i)
         j = 0
         while j < len(relatedlist):
-            relations = []
             if i == j:
                 j = j + 1
             if j < len(relatedlist):
                 for item in relatedlist[i][0]:
-                    print(item)
                     subrelations = []
                     if item in relatedlist[j][1]:
                         subrelations.append(i)
                         subrelations.append(item)
                         subrelations.append(j)
-                    relations.append(subrelations)
-                foundrelation.append(relations)
+                        result.append(subrelations)
                 
                 for item in relatedlist[i][1]:
-                    print(item)
                     subrelations = []
                     if item in relatedlist[j][1]:
                         subrelations.append(i)
                         subrelations.append(item)
                         subrelations.append(j)
-                    relations.append(subrelations)
-                foundrelation.append(relations)
+                        result.append(subrelations)
             j = j + 1 
-        result.append(foundrelation)
-    return result
+    
+    for record in result:
+        i = record[0];
+        j = record[2];
+        if i < j:
+            relationship[i][j] += round(100/len(result),0)
+        else:
+            relationship[j][i] += round(100/len(result),0)
+    
+    return relationship
 
 def refineannotaion(expression):
     output = wikiAPI(expression,'title')
